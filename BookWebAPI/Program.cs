@@ -1,13 +1,27 @@
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using BookWebAPI.Data;
 using BookWebAPI.Repositories;
 using BookWebAPI.Services.Implementations;
 using BookWebAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services 
+if (!builder.Environment.IsDevelopment())
+{
+    var keyVaultUrl = builder.Configuration["KeyVault:Url"];
+
+    if (string.IsNullOrWhiteSpace(keyVaultUrl))
+        throw new InvalidOperationException(
+            "KeyVault:Url is not configured.");
+
+    var secretClient = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
+    builder.Configuration.AddAzureKeyVault(secretClient, new KeyVaultSecretManager());
+}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
