@@ -2,6 +2,7 @@ using BookWebAPI.Data;
 using BookWebAPI.Repositories;
 using BookWebAPI.Services.Implementations;
 using BookWebAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,29 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var exceptionHandler =
+            context.Features.Get<IExceptionHandlerFeature>();
+
+        var exception = exceptionHandler?.Error;
+
+        if (exception != null)
+        {
+            var logger = context.RequestServices
+                .GetRequiredService<ILogger<Program>>();
+
+            logger.LogError(
+                exception,
+                "Unhandled exception while processing request");
+        }
+
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("Internal Server Error");
+    });
+});
 app.MapControllers();
 
 app.Run();
