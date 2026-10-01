@@ -11,6 +11,7 @@ using Azure.Extensions.AspNetCore.Configuration.Secrets;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services 
+//Add KeyVault configuration provider only in non-development environments
 if (!builder.Environment.IsDevelopment())
 {
     var keyVaultUrl = builder.Configuration["KeyVault:Url"];

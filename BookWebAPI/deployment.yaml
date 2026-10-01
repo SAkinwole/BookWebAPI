@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: bookwebapi
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: bookwebapi
+
+  template:
+    metadata:
+      labels:
+        app: bookwebapi
+
+    spec:
+      containers:
+        - name: bookwebapi
+          image: bookwebapi:v1
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: bookwebapi-config
+                  key: ASPNETCORE_ENVIRONMENT

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: bookwebapi-config
+
+data:
+  ASPNETCORE_ENVIRONMENT: "Development"
